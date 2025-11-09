@@ -33,6 +33,7 @@ type Board struct {
 
 var globalBoard *Board
 var task_counter int = 0
+var hub *Hub
 
 //setup function here ig
 
@@ -175,6 +176,12 @@ func main() {
 
 	initBoard()
 
+	//setup websocket hub
+	hub = newHub()
+	go hub.run()
+
+	fmt.Println("websocket hub running in background")
+
 	//adding sm test tasks rn to see if it works
 
 	fmt.Println("adding test tasks....")
@@ -212,6 +219,9 @@ func main() {
 
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/health", healthHandler)
+	http.HandleFunc("/ws", wsHandler)
+ 
+	fmt.Println("websocket endpoint: /ws")
 
 	//starting the server
 
