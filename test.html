@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GoBoard testing ws connection</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        
+        #messages {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin: 10px 0;
+        }
+        
+        input {
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 5px;
+            width: 300px;
+        }
+        
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>GoBoard WebSocket Test</h1>
+    <p>status: <span id="status">connecting...</span></p>
+    
+    <div id="messages"></div>
+    
+    <input type="text" id="messageInput" placeholder="type message...">
+    <button onclick="sendMessage()">send</button>
+    
+    <script>
+        var ws;
+        var messagesDiv = document.getElementById('messages');
+        var statusSpan = document.getElementById('status');
+        
+        function connect() {
+            ws = new WebSocket('ws://localhost:8080/ws');
+            
+            ws.onopen = function() {
+                statusSpan.textContent = 'connected!';
+                statusSpan.style.color = '#00ff00';
+                addMessage('connected to server');
+            };
+            
+            ws.onmessage = function(event) {
+                addMessage('received: ' + event.data);
+            };
+            
+            ws.onerror = function(error) {
+                statusSpan.textContent = 'error';
+                statusSpan.style.color = '#ff0000';
+                addMessage('error: ' + error);
+            };
+            
+            ws.onclose = function() {
+                statusSpan.textContent = 'disconnected';
+                statusSpan.style.color = '#ff0000';
+                addMessage('connection closed');
+            };
+        }
+        
+        function sendMessage() {
+            var input = document.getElementById('messageInput');
+            var message = input.value;
+            
+            if (message && ws.readyState === WebSocket.OPEN) {
+                ws.send(message);
+                addMessage('sent: ' + message);
+                input.value = '';
+            }
+        }
+        
+        
+        function addMessage(msg) {
+            var time = new Date().toLocaleTimeString();
+            messagesDiv.innerHTML += '[' + time + '] ' + msg + '<br>';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        connect();
+    </script>
+</body>
+</html>
