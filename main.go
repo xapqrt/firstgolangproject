@@ -1,8 +1,6 @@
 //alr chat dis is my first go project, tryna make a kanban board, lets see if it works!!
 
 
-
-
 package main
 
 
@@ -13,9 +11,6 @@ import (
 	"time"
 )
 
-//i think this is how u make a struct?
-
-
 
 type Task struct {
 	ID        string
@@ -24,7 +19,6 @@ type Task struct {
 	CreatedAt time.Time
 }
 
-// gonna store sm tasks in memory for now, might learn to make databses later
 
 type Board struct {
 	tasks map[string][]Task
@@ -35,19 +29,13 @@ var globalBoard *Board
 var task_counter int = 0
 var hub *Hub
 
-//setup function here ig
-
 func initBoard() {
 
 	fmt.Println("setting up board...")
 
-	// i feel like this is kinda like python wdyt
-
 	globalBoard = &Board{
 		tasks: make(map[string][]Task),
 	}
-
-	//nned three columns for now
 
 	globalBoard.tasks["todo"] = []Task{}
 	globalBoard.tasks["doing"] = []Task{}
@@ -58,8 +46,6 @@ func initBoard() {
 }
 
 
-//adding tasks to the board
-
 func (b *Board) addTask(task Task) {
 
 	b.mu.Lock()
@@ -67,8 +53,6 @@ func (b *Board) addTask(task Task) {
 
 	var column string
 	column = task.Status
-
-	//appening to the right coloumn
 
 	b.tasks[column] = append(b.tasks[column], task)
 
@@ -79,24 +63,14 @@ func (b *Board) addTask(task Task) {
 
 
 
-
-
-
-//getting all the tasks
-//it returns a map i thinkw wll ckeck
-
 func (b *Board) getAllTasks() map[string][]Task {
 
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	//making a copy cuz the code camp guy told it
-
 	result := make(map[string][]Task)
 
 	for status, task_list := range b.tasks {
-
-		//copying each list
 
 		var copied_list []Task
 		copied_list = append([]Task{}, task_list...)
@@ -109,8 +83,6 @@ func (b *Board) getAllTasks() map[string][]Task {
 
 
 
-//this is the server fheck func
-
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("health check hit")
@@ -121,25 +93,14 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 
 
-
-
-//main page handlerr
-
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("someone visited the root page")
-	//i hopt it doesnt spam
-
-	//getting all tasks
 
 	all_tasks := globalBoard.getAllTasks()
 
-	//sm html
-
 	w.Write([]byte("<h1>GoBoard</h1>\n"))
 	w.Write([]byte("<p>my kanban board project!</p>\n"))
-
-	//shows task counts
 
 	for status, tasks := range all_tasks {
 
@@ -149,12 +110,16 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func boardHandler(w http.ResponseWriter, r *http.Request){
+
+	fmt.Println("serving board.html")
+	
+	// w.Write([]byte("board.html"))
+	
+	http.ServeFile(w, r, "board.html")
+}
 
 
-
-
-
-//tryna make a function that creates task id
 
 func makeTaskID() string {
 
@@ -172,17 +137,13 @@ func main() {
 
 	fmt.Println("Starting GoBoard server!    ..........")
 
-	//initialiseing the board
-
 	initBoard()
 
-	//setup websocket hub
+	
 	hub = newHub()
 	go hub.run()
 
 	fmt.Println("websocket hub running in background")
-
-	//adding sm test tasks rn to see if it works
 
 	fmt.Println("adding test tasks....")
 
@@ -213,17 +174,15 @@ func main() {
 
 	fmt.Println("test tasks added!!")
 
-	//settin up routes now
-
 	fmt.Println("alr lemme start up routes")
 
 	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/board", boardHandler)
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/ws", wsHandler)
  
 	fmt.Println("websocket endpoint: /ws")
-
-	//starting the server
+	fmt.Println("board ui: /board")
 
 	var port string
 	port = ":8080"
@@ -231,8 +190,6 @@ func main() {
 	fmt.Println("")
 	fmt.Println("Server statring on http://localhost:8080")
 	fmt.Println("Press Ctrl+C to stop")
-
-	//lets hope this stops server
 
 	err := http.ListenAndServe(port, nil)
 
