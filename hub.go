@@ -33,7 +33,7 @@ func newHub() *Hub {
 }
 
 //runs the hub in background
-//this should run in a goroutine i think
+//infinite loop with select
 
 func (h *Hub) run() {
 
@@ -44,10 +44,15 @@ func (h *Hub) run() {
 
 		case client := <-h.register:
 			h.clients[client] = true
-			fmt.Println("new client registered, total:", len(h.clients))
+			var total int
+			total = len(h.clients)
+			fmt.Println("new client registered, total:", total)
 
 		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
+			
+			_, exists := h.clients[client]
+			
+			if exists {
 				delete(h.clients, client)
 				close(client.send)
 				fmt.Println("client unregistered, remaining:", len(h.clients))
@@ -55,17 +60,18 @@ func (h *Hub) run() {
 
 		case message := <-h.broadcast:
 
-			fmt.Println("broadcasting to", len(h.clients), "clients")
+			client_count := len(h.clients)
+			fmt.Println("broadcasting to", client_count, "clients")
 
 			//send to all connected clients
 			for client := range h.clients {
 
 				select {
 				case client.send <- message:
-					//message sent
+					//sent
 
 				default:
-					//client buffer full or smth
+					//channel full maybe
 					close(client.send)
 					delete(h.clients, client)
 					fmt.Println("removed slow client")
