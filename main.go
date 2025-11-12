@@ -96,6 +96,46 @@ func (b *Board) getAllTasks() map[string][]Task {
 
 
 
+
+
+
+
+func (b *Board) moveTask(taskID string, newStatus string) bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	
+	//find 
+
+
+	for oldStatus, taskList := range b.tasks {
+		for i, task := range taskList {
+			if task.ID == taskID {
+
+
+
+				//remove 
+				// 
+				
+				b.tasks[oldStatus] = append(taskList[:i], taskList[i+1:]...)
+				
+				//update 
+
+
+
+				task.Status = newStatus
+				b.tasks[newStatus] = append(b.tasks[newStatus], task)
+				
+				fmt.Println("moved task", taskID, "from", oldStatus, "to", newStatus)
+				return true
+			}
+		}
+	}
+	
+	fmt.Println("task not found:", taskID)
+	return false
+}
+
+
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("health check hit")
@@ -134,9 +174,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func boardHandler(w http.ResponseWriter, r *http.Request){
 
 	fmt.Println("serving board.html")
-
-
-
 
 
 
@@ -249,7 +286,7 @@ func main() {
 	if err != nil {
 
 
-		
+
 		fmt.Println("errorr", err)
 		fmt.Println("something went wrong, maybe check console")
 

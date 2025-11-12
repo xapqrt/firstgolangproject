@@ -73,10 +73,15 @@ func handleClientMessage(data []byte) {
 		
 	} else if msg.Type == "task_move"{
 		
-		//todo: update task status in board
+		//update task status in board
+		var success bool
+		success = globalBoard.moveTask(msg.TaskID, msg.Status)
 		
-		broadcastTask(msg)
-		
-		fmt.Println("task moved, broadcasted")
+		if success {
+			broadcastTask(msg)
+			fmt.Println("task moved, broadcasted")
+		} else {
+			fmt.Println("task move failed, task not found")
+		}
 	}
 }
