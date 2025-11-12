@@ -1,0 +1,152 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #0a0a0a;
+    color: #00ff41;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #00ff41;
+    padding-bottom: 10px;
+}
+
+.header h1 {
+    font-size: 2em;
+    letter-spacing: 3px;
+}
+
+.status {
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+.board {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.column {
+    flex: 1;
+    min-width: 300px;
+    background: #111;
+    border: 2px solid #00ff41;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.column-header {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    text-align: center;
+    padding: 10px;
+    background: #00ff41;
+    color: #000;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.task {
+    background: #1a1a1a;
+    border: 1px solid #00ff41;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    cursor: move;
+    transition: all 0.2s;
+}
+
+.task:hover {
+    background: #252525;
+    border-color: #00d4ff;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.task-title {
+    font-size: 1em;
+    margin-bottom: 5px;
+}
+
+.task-id {
+    font-size: 0.7em;
+    color: #00d4ff;
+    opacity: 0.7;
+}
+
+.add-task-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px dashed #00ff41;
+    color: #00ff41;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    margin-top: 10px;
+}
+
+.add-task-btn:hover {
+    background: #00ff4111;
+}
+
+.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+
+.drag-over {
+    background: #00ff4122;
+}
+
+#taskInput {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #111;
+    border: 2px solid #00ff41;
+    padding: 20px;
+    border-radius: 5px;
+    display: none;
+    z-index: 1000;
+}
+
+#taskInput.active {
+    display: block;
+}
+
+#taskInput input {
+    width: 300px;
+    padding: 10px;
+    background: #000;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 10px;
+}
+
+#taskInput button {
+    padding: 8px 15px;
+    background: #00ff41;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    margin-right: 5px;
+}
+
+#taskInput button.cancel {
+    background: transparent;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+}

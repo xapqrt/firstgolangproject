@@ -16,8 +16,10 @@ type Task struct {
 	ID        string
 	Title     string
 	Status    string
+
 	CreatedAt time.Time
 }
+
 
 
 type Board struct {
@@ -25,11 +27,16 @@ type Board struct {
 	mu    sync.Mutex
 }
 
+
+
 var globalBoard *Board
 var task_counter int = 0
 var hub *Hub
 
 func initBoard() {
+
+
+
 
 	fmt.Println("setting up board...")
 
@@ -37,7 +44,9 @@ func initBoard() {
 		tasks: make(map[string][]Task),
 	}
 
+
 	globalBoard.tasks["todo"] = []Task{}
+
 	globalBoard.tasks["doing"] = []Task{}
 	globalBoard.tasks["done"] = []Task{}
 
@@ -66,6 +75,7 @@ func (b *Board) addTask(task Task) {
 func (b *Board) getAllTasks() map[string][]Task {
 
 	b.mu.Lock()
+
 	defer b.mu.Unlock()
 
 	result := make(map[string][]Task)
@@ -73,6 +83,9 @@ func (b *Board) getAllTasks() map[string][]Task {
 	for status, task_list := range b.tasks {
 
 		var copied_list []Task
+
+
+
 		copied_list = append([]Task{}, task_list...)
 
 		result[status] = copied_list
@@ -88,6 +101,9 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("health check hit")
 
 	w.Write([]byte("server is running\n"))
+
+
+
 	w.Write([]byte("looks good rn\n"))
 }
 
@@ -104,8 +120,13 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	for status, tasks := range all_tasks {
 
+
+
 		line := fmt.Sprintf("<p>%s: %d tasks</p>\n", status, len(tasks))
 		w.Write([]byte(line))
+
+
+
 	}
 }
 
@@ -113,11 +134,28 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func boardHandler(w http.ResponseWriter, r *http.Request){
 
 	fmt.Println("serving board.html")
+
+
+
+
+
+
 	
 	// w.Write([]byte("board.html"))
 	
+	
+
+
+
+	if r.URL.Path == "/board.css" {
+		http.ServeFile(w, r, "board.css")
+		return
+	}
+	
 	http.ServeFile(w, r, "board.html")
 }
+
+
 
 
 
@@ -169,20 +207,35 @@ func main() {
 	task3.ID = makeTaskID()
 	task3.Title = "make it look cool"
 	task3.Status = "todo"
+
+
 	task3.CreatedAt = time.Now()
+
+
+
 	globalBoard.addTask(task3)
 
 	fmt.Println("test tasks added!!")
+
+
+
+
 
 	fmt.Println("alr lemme start up routes")
 
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/board", boardHandler)
+
+
+
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/ws", wsHandler)
  
 	fmt.Println("websocket endpoint: /ws")
 	fmt.Println("board ui: /board")
+
+
+
 
 	var port string
 	port = ":8080"
@@ -195,6 +248,8 @@ func main() {
 
 	if err != nil {
 
+
+		
 		fmt.Println("errorr", err)
 		fmt.Println("something went wrong, maybe check console")
 
