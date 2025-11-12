@@ -7,6 +7,11 @@
 <body>
     <div class="header">
         <h1>GoBoard</h1>
+        <label class="theme-toggle">
+            <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+            <span class="toggle-slider"></span>
+            <span class="toggle-label">🌙</span>
+        </label>
         <div class="status">
             <span id="wsStatus" class="status-badge">connecting...</span>
             <span id="taskCount">0 tasks</span>
@@ -282,7 +287,28 @@
         });
 
 
+        function toggleDarkMode() {
+            var body = document.body;
+            var isDark = document.getElementById('darkModeToggle').checked;
+            
+            if (isDark) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
         
+        function loadDarkMode() {
+            var darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').checked = true;
+            }
+        }
+        
+        loadDarkMode();
         connect();
     </script>
 </body>

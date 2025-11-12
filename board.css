@@ -10,6 +10,12 @@ body {
     color: #333;
     padding: 20px;
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+    background: #1a1a1a;
+    color: #e0e0e0;
 }
 
 .header {
@@ -17,6 +23,11 @@ body {
     margin-bottom: 40px;
     padding-bottom: 20px;
     border-bottom: 2px solid #e1e4e8;
+    position: relative;
+}
+
+body.dark-mode .header {
+    border-bottom-color: #404040;
 }
 
 .header h1 {
@@ -24,6 +35,57 @@ body {
     font-weight: 700;
     color: #2c3e50;
     margin-bottom: 10px;
+}
+
+body.dark-mode .header h1 {
+    color: #ffffff;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.theme-toggle input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 50px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 24px;
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle input:checked + .toggle-slider {
+    background: #667eea;
+}
+
+.theme-toggle input:checked + .toggle-slider::before {
+    transform: translateX(26px);
+}
+
+.toggle-label {
+    font-size: 1.2em;
 }
 
 .status {
@@ -71,11 +133,21 @@ body {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+body.dark-mode .column {
+    background: #2d2d2d;
+    border-color: #404040;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .column:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+body.dark-mode .column:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .column-header {
@@ -113,11 +185,21 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
+body.dark-mode .task {
+    background: #3a3a3a;
+    border-color: #505050;
+}
+
 .task:hover {
     background: #fff;
     border-left-color: #764ba2;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transform: translateY(-2px);
+}
+
+body.dark-mode .task:hover {
+    background: #454545;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .task-header {
@@ -132,6 +214,10 @@ body {
     color: #2c3e50;
     font-weight: 500;
     flex: 1;
+}
+
+body.dark-mode .task-title {
+    color: #e0e0e0;
 }
 
 .delete-btn {
@@ -202,10 +288,19 @@ body {
     transition: all 0.2s ease;
 }
 
+body.dark-mode .add-task-btn {
+    border-color: #505050;
+    color: #a0a0a0;
+}
+
 .add-task-btn:hover {
     background: #f8f9fa;
     border-color: #667eea;
     color: #667eea;
+}
+
+body.dark-mode .add-task-btn:hover {
+    background: #3a3a3a;
 }
 
 .dragging {
@@ -216,6 +311,10 @@ body {
 .drag-over {
     background: #e7f3ff;
     border-color: #667eea;
+}
+
+body.dark-mode .drag-over {
+    background: #2a3a4a;
 }
 
 #taskInput {
@@ -233,6 +332,11 @@ body {
     min-width: 400px;
 }
 
+body.dark-mode #taskInput {
+    background: #2d2d2d;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+
 #taskInput.active {
     display: block;
 }
@@ -241,6 +345,10 @@ body {
     margin-bottom: 20px;
     color: #2c3e50;
     font-size: 1.3em;
+}
+
+body.dark-mode #taskInput h3 {
+    color: #e0e0e0;
 }
 
 #taskInput input {
@@ -256,6 +364,12 @@ body {
     transition: border-color 0.2s ease;
 }
 
+body.dark-mode #taskInput input {
+    background: #3a3a3a;
+    border-color: #505050;
+    color: #e0e0e0;
+}
+
 #taskInput input[type="datetime-local"] {
     cursor: pointer;
 }
@@ -264,6 +378,10 @@ body {
     outline: none;
     border-color: #667eea;
     background: #fff;
+}
+
+body.dark-mode #taskInput input:focus {
+    background: #454545;
 }
 
 .modal-buttons {
@@ -292,6 +410,9 @@ body {
     background: #f8f9fa;
     border: 2px solid #e1e4e8;
     color: #6c757d;
+
+
+    
 }
 
 #taskInput button.cancel:hover {
