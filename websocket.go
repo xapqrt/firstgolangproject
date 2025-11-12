@@ -58,6 +58,12 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 	
+	
+
+
+	//lets js send it
+	go sendInitialTasks(client)
+	
 	fmt.Println("client setup complete")
 }
 
