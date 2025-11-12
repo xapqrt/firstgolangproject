@@ -178,7 +178,7 @@ func boardHandler(w http.ResponseWriter, r *http.Request){
 
 
 	
-	// w.Write([]byte("board.html"))
+	// w.Write([]byte("board.html") )
 	
 	
 
