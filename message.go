@@ -12,10 +12,11 @@ import (
 
 
 type Message struct {
-	Type   string `json:"type"`
-	TaskID string `json:"taskId"`
-	Title  string `json:"title"`
-	Status string `json:"status"`
+	Type    string `json:"type"`
+	TaskID  string `json:"taskId"`
+	Title   string `json:"title"`
+	Status  string `json:"status"`
+	DueDate string `json:"dueDate,omitempty"`
 }
 
 
@@ -64,8 +65,12 @@ func handleClientMessage(data []byte) {
 			newTask.Title = msg.Title
 		newTask.Status = msg.Status
 		newTask.CreatedAt = time.Now()
+		newTask.DueDate = msg.DueDate
 		
 		globalBoard.addTask(newTask)
+		
+		//save to file after adding
+		go saveTasks()
 		
 		broadcastTask(msg)
 		
@@ -78,10 +83,25 @@ func handleClientMessage(data []byte) {
 		success = globalBoard.moveTask(msg.TaskID, msg.Status)
 		
 		if success {
+			//save to file after moving
+			go saveTasks()
+			
 			broadcastTask(msg)
 			fmt.Println("task moved, broadcasted")
 		} else {
 			fmt.Println("task move failed, task not found")
+		}
+	} else if msg.Type == "task_delete" {
+		//delete task from board
+		var success bool
+		success = globalBoard.deleteTask(msg.TaskID)
+		
+		if success {
+			go saveTasks()
+			broadcastTask(msg)
+			fmt.Println("task deleted, broadcasted")
+		} else {
+			fmt.Println("task delete failed, not found")
 		}
 	}
 }

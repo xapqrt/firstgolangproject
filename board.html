@@ -8,7 +8,7 @@
     <div class="header">
         <h1>GoBoard</h1>
         <div class="status">
-            <span id="wsStatus">connecting...</span> | 
+            <span id="wsStatus" class="status-badge">connecting...</span>
             <span id="taskCount">0 tasks</span>
         </div>
     </div>
@@ -17,30 +17,42 @@
     
     <div class="board">
         <div class="column" data-status="todo">
-            <div class="column-header">TO DO</div>
+            <div class="column-header">
+                <span>TO DO</span>
+                <span class="column-count" id="todo-count">0</span>
+            </div>
             <div class="tasks" id="todo-tasks"></div>
-            <button class="add-task-btn" onclick="showAddTask('todo')">+ add task</button>
+            <button class="add-task-btn" onclick="showAddTask('todo')">+ Add Task</button>
         </div>
 
         
         <div class="column" data-status="doing">
-            <div class="column-header">DOING</div>
+            <div class="column-header">
+                <span>IN PROGRESS</span>
+                <span class="column-count" id="doing-count">0</span>
+            </div>
             <div class="tasks" id="doing-tasks"></div>
-            <button class="add-task-btn" onclick="showAddTask('doing')">+ add task</button>
+            <button class="add-task-btn" onclick="showAddTask('doing')">+ Add Task</button>
         </div>
         
         <div class="column" data-status="done">
-            <div class="column-header">DONE</div>
+            <div class="column-header">
+                <span>COMPLETED</span>
+                <span class="column-count" id="done-count">0</span>
+            </div>
             <div class="tasks" id="done-tasks"></div>
-            <button class="add-task-btn" onclick="showAddTask('done')">+ add task</button>
+            <button class="add-task-btn" onclick="showAddTask('done')">+ Add Task</button>
         </div>
     </div>
     
     <div id="taskInput">
-        <input type="text" id="taskTitle" placeholder="task title...">
-        <br>
-        <button onclick="createTask()">create</button>
-        <button class="cancel" onclick="hideAddTask()">cancel</button>
+        <h3>New Task</h3>
+        <input type="text" id="taskTitle" placeholder="What needs to be done?">
+        <input type="datetime-local" id="taskDueDate" placeholder="Due date (optional)">
+        <div class="modal-buttons">
+            <button onclick="createTask()">Create Task</button>
+            <button class="cancel" onclick="hideAddTask()">Cancel</button>
+        </div>
     </div>
     
     <script>
@@ -52,6 +64,7 @@
             
             ws.onopen = function() {
                 document.getElementById('wsStatus').textContent = 'connected';
+                document.getElementById('wsStatus').className = 'status-badge connected';
                 console.log('connected to server');
             };
             
@@ -64,11 +77,13 @@
             
             ws.onerror = function(error) {
                 document.getElementById('wsStatus').textContent = 'error';
+                document.getElementById('wsStatus').className = 'status-badge error';
                 console.log('ws error:', error);
             };
             
             ws.onclose = function() {
                 document.getElementById('wsStatus').textContent = 'disconnected';
+                document.getElementById('wsStatus').className = 'status-badge disconnected';
                 console.log('disconnected');
             };
         }
@@ -77,9 +92,19 @@
             var msg = JSON.parse(data);
             
             if (msg.type == 'task_add') {
-                    addTaskToBoard(msg.taskId, msg.title, msg.status);
+                    addTaskToBoard(msg.taskId, msg.title, msg.status, msg.dueDate);
             } else if (msg.type == 'task_move') {
                 moveTaskOnBoard(msg.taskId, msg.status);
+            } else if (msg.type == 'task_delete') {
+                var task = document.querySelector('[data-id="' + msg.taskId + '"]');
+                if (task) {
+                    task.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(function() {
+                        task.remove();
+                        updateTaskCount();
+                        updateColumnCounts();
+                    }, 300);
+                }
             }
         }
 
@@ -94,6 +119,7 @@
         function hideAddTask() {
             document.getElementById('taskInput').classList.remove('active');
             document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDueDate').value = '';
         }
 
         
@@ -102,20 +128,22 @@
             if (!title) return;
             
                 var taskId = 'task-' + Date.now();
+            var dueDate = document.getElementById('taskDueDate').value;
             
-            addTaskToBoard(taskId, title, currentColumn);
+            addTaskToBoard(taskId, title, currentColumn, dueDate);
             
             ws.send(JSON.stringify({
                 type: 'task_add',
                     taskId: taskId,
                 title: title,
-                status: currentColumn
+                status: currentColumn,
+                dueDate: dueDate
             }));
             
             hideAddTask();
         }
         
-        function addTaskToBoard(id, title, status) {
+        function addTaskToBoard(id, title, status, dueDate) {
             
             var existing = document.querySelector('[data-id="' + id + '"]');
             if (existing) return;
@@ -126,9 +154,27 @@
             taskDiv.dataset.id = id;
             taskDiv.dataset.status = status;
             
+            var now = new Date();
+            var timeStr = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+            
+            var dueDateHtml = '';
+            if (dueDate) {
+                var dueTime = new Date(dueDate);
+                var dueStr = dueTime.toLocaleString('en-US', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'});
+                var isOverdue = dueTime < now;
+                dueDateHtml = '<span class="task-due ' + (isOverdue ? 'overdue' : '') + '">⏰ ' + dueStr + '</span>';
+            }
+            
             taskDiv.innerHTML = 
-                '<div class="task-title">' + title + '</div>' +
-                '<div class="task-id">' + id + '</div>';
+                '<div class="task-header">' +
+                    '<div class="task-title">' + title + '</div>' +
+                    '<button class="delete-btn" onclick="deleteTask(\'' + id + '\')">×</button>' +
+                '</div>' +
+                '<div class="task-footer">' +
+                    '<span class="task-id">' + id + '</span>' +
+                    dueDateHtml +
+                    '<span class="task-time">' + timeStr + '</span>' +
+                '</div>';
             
             taskDiv.addEventListener('dragstart', handleDragStart);
                 taskDiv.addEventListener('dragend', handleDragEnd);
@@ -136,7 +182,10 @@
             var container = document.getElementById(status + '-tasks');
             container.appendChild(taskDiv);
             
+            taskDiv.style.animation = 'slideIn 0.3s ease';
+            
             updateTaskCount();
+            updateColumnCounts();
         }
         
         function handleDragStart(e) {
@@ -161,9 +210,39 @@
                 task.dataset.status = newStatus;
             var container = document.getElementById(newStatus + '-tasks');
             container.appendChild(task);
-        }        function updateTaskCount() {
+            updateColumnCounts();
+        }
+        
+        function deleteTask(taskId) {
+            var task = document.querySelector('[data-id="' + taskId + '"]');
+            if (!task) return;
+            
+            task.style.animation = 'slideOut 0.3s ease';
+            setTimeout(function() {
+                task.remove();
+                updateTaskCount();
+                updateColumnCounts();
+            }, 300);
+            
+            ws.send(JSON.stringify({
+                type: 'task_delete',
+                taskId: taskId,
+                title: '',
+                status: ''
+            }));
+        }
+        
+        function updateTaskCount() {
             var tasks = document.querySelectorAll('.task');
                 document.getElementById('taskCount').textContent = tasks.length + ' tasks';
+        }
+        
+        function updateColumnCounts() {
+            var statuses = ['todo', 'doing', 'done'];
+            statuses.forEach(function(status) {
+                var count = document.querySelectorAll('#' + status + '-tasks .task').length;
+                document.getElementById(status + '-count').textContent = count;
+            });
         }
 
         

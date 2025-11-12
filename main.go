@@ -18,6 +18,7 @@ type Task struct {
 	Status    string
 
 	CreatedAt time.Time
+	DueDate   string    `json:"dueDate,omitempty"`
 }
 
 
@@ -135,6 +136,25 @@ func (b *Board) moveTask(taskID string, newStatus string) bool {
 	return false
 }
 
+//delete task from board
+func (b *Board) deleteTask(taskID string) bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	
+	for status, taskList := range b.tasks {
+		for i, task := range taskList {
+			if task.ID == taskID {
+				b.tasks[status] = append(taskList[:i], taskList[i+1:]...)
+				fmt.Println("deleted task", taskID, "from", status)
+				return true
+			}
+		}
+	}
+	
+	fmt.Println("task not found for deletion:", taskID)
+	return false
+}
+
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -213,6 +233,12 @@ func main() {
 	fmt.Println("Starting GoBoard server!    ..........")
 
 	initBoard()
+	
+	//load tasks from file if it exists
+	err := loadTasks()
+	if err != nil {
+		fmt.Println("couldnt load tasks, starting fresh")
+	}
 
 	
 	hub = newHub()
@@ -262,6 +288,9 @@ func main() {
 
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/board", boardHandler)
+	http.HandleFunc("/board.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "board.css")
+	})
 
 
 
@@ -281,13 +310,14 @@ func main() {
 	fmt.Println("Server statring on http://localhost:8080")
 	fmt.Println("Press Ctrl+C to stop")
 
-	err := http.ListenAndServe(port, nil)
+	var serverErr error
+	serverErr = http.ListenAndServe(port, nil)
 
-	if err != nil {
+	if serverErr != nil {
 
 
 
-		fmt.Println("errorr", err)
+		fmt.Println("errorr", serverErr)
 		fmt.Println("something went wrong, maybe check console")
 
 	}
