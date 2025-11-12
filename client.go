@@ -54,7 +54,6 @@ func (c *Client) readPump() {
 		handleClientMessage(message)
 	}
 }
-}
 
 
 
