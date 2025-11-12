@@ -193,12 +193,12 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 func boardHandler(w http.ResponseWriter, r *http.Request){
 
-	fmt.Println("serving board.html")
+	fmt.Println("serving index.html")
 
 
 
 	
-	// w.Write([]byte("board.html") )
+	// w.Write([]byte("index.html") )
 	
 	
 
@@ -209,7 +209,7 @@ func boardHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	http.ServeFile(w, r, "board.html")
+	http.ServeFile(w, r, "index.html")
 }
 
 

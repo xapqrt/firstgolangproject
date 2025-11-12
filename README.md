@@ -62,4 +62,4 @@ yoo this is a real-time multiplayer kanban board i built with go and websockets.
 
 ---
 
-made during a hackathon vibe coding session lol
+
