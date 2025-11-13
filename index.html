@@ -65,7 +65,12 @@
         var currentColumn;
         
         function connect() {
-            ws = new WebSocket('ws://localhost:8080/ws');
+            // use wss for production, ws for localhost
+            var wsUrl = window.location.hostname === 'localhost' 
+                ? 'ws://localhost:8080/ws' 
+                : 'wss://' + window.location.host + '/ws';
+            
+            ws = new WebSocket(wsUrl);
             
             ws.onopen = function() {
                 document.getElementById('wsStatus').textContent = 'connected';

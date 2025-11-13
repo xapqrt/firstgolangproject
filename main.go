@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -263,9 +264,15 @@ func main() {
 
 	var port string
 	port = ":8080"
+	
+	// check if PORT env var is set (for render deployment)
+	envPort := os.Getenv("PORT")
+	if envPort != "" {
+		port = ":" + envPort
+	}
 
 	fmt.Println("")
-	fmt.Println("Server statring on http://localhost:8080")
+	fmt.Println("Server statring on port", port)
 	fmt.Println("Press Ctrl+C to stop")
 
 	var serverErr error
